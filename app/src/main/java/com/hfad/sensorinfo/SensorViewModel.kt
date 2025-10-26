@@ -10,4 +10,12 @@ class SensorViewModel : ViewModel()  {
         set(value) {
             if (value in 0..3) field = value
         }
+
+    fun setSelected(str: String?) {
+        if (!str.isNullOrBlank()) selected = try {
+            str.toInt()
+        } catch (e: NumberFormatException) {
+            0
+        }
+    }
 }

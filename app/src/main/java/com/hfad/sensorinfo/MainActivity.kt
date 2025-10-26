@@ -1,12 +1,16 @@
 package com.hfad.sensorinfo
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -46,8 +50,6 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
         val spnAdapter = ArrayAdapter.createFromResource(this, R.array.colorsArray, android.R.layout.simple_spinner_item)
         spnColor.adapter = spnAdapter
 
-        applyPreferences()
-
         val spnColorListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 when (position) {
@@ -67,21 +69,30 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
         Toast.makeText(this, "position: $position", Toast. LENGTH_SHORT).show()
     }
 
-    override fun onStop() {
-        super.onStop()
-        savePreferences()
+    override fun onStart() {
+        super.onStart()
+        applyPreferences()
     }
 
-    private fun savePreferences() {
-        val pref = getPreferences(Context.MODE_PRIVATE)
-        val edit = pref.edit()
-        edit.putInt("selected",viewModel.selected)
-        edit.apply()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menuPref -> {
+                val settingsActivity = Intent(this,SettingsActivity::class.java)
+                startActivity(settingsActivity)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun applyPreferences() {
-        val pref = getPreferences(Context.MODE_PRIVATE)
-        viewModel.selected = pref.getInt("selected", viewModel. selected)
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        viewModel.setSelected(pref.getString("selected", viewModel.selected.toString()))
         spnColor.setSelection(viewModel.selected)
     }
 }

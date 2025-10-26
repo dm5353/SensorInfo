@@ -6,6 +6,6 @@
             android:entries="@array/colorsArray"
             android:entryValues="@array/valuesArray"
             android:key="selected"
-            android:title="List preference" />
+            android:title="List preference"/>
     </PreferenceCategory>
 </PreferenceScreen>
