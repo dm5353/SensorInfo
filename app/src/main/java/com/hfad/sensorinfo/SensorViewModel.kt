@@ -6,4 +6,8 @@ class SensorViewModel : ViewModel()  {
     private val repository = SensorRepository.get()
     val sensorsList = repository.sensorList
     val listAsMaps = repository.listAsMaps()
+    var selected = 0
+        set(value) {
+            if (value in 0..3) field = value
+        }
 }

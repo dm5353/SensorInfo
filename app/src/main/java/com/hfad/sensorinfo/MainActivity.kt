@@ -1,5 +1,6 @@
 package com.hfad.sensorinfo
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
 
         val spnAdapter = ArrayAdapter.createFromResource(this, R.array.colorsArray, android.R.layout.simple_spinner_item)
         spnColor.adapter = spnAdapter
+
+        applyPreferences()
+
         val spnColorListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 when (position) {
@@ -52,6 +56,7 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
                     2 -> rvSensors.setBackgroundColor(Color.YELLOW)
                     3 -> rvSensors.setBackgroundColor(Color.GREEN)
                 }
+                viewModel.selected = position
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
@@ -60,5 +65,23 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
 
     override fun onItemClick(view: View?, position: Int) {
         Toast.makeText(this, "position: $position", Toast. LENGTH_SHORT).show()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        savePreferences()
+    }
+
+    private fun savePreferences() {
+        val pref = getPreferences(Context.MODE_PRIVATE)
+        val edit = pref.edit()
+        edit.putInt("selected",viewModel.selected)
+        edit.apply()
+    }
+
+    private fun applyPreferences() {
+        val pref = getPreferences(Context.MODE_PRIVATE)
+        viewModel.selected = pref.getInt("selected", viewModel. selected)
+        spnColor.setSelection(viewModel.selected)
     }
 }
