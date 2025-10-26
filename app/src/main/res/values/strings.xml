@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SensorInfo</string>
+    <string name="preferences">Preferences</string>
+    <string name="save_to_file">Save to File</string>
 </resources>

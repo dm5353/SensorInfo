@@ -3,6 +3,7 @@ package com.hfad.sensorinfo
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -13,6 +14,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.io.FileOutputStream
+import java.io.IOException
+
+const val REQUEST_SELECT_URI = 100
 
 class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
     lateinit var lvSensors : ListView
@@ -86,8 +91,37 @@ class MainActivity : AppCompatActivity(), SensorRVAdapter.ItemClickListener {
                 startActivity(settingsActivity)
                 true
             }
+            R.id.menuSave -> {
+                val selectLocation = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                selectLocation.setType("text/plain") //mime-тип файла
+                startActivityForResult(selectLocation, REQUEST_SELECT_URI)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_SELECT_URI && resultCode == RESULT_OK) {
+            data?.data?.let { uri ->
+                Thread(Runnable {
+                    saveFile(uri)
+                }).start()
+            }
+        }
+    }
+
+    private fun saveFile(uri: Uri) = try {
+        contentResolver.openFileDescriptor(uri,"w")?.let { pfd ->
+            FileOutputStream(pfd.fileDescriptor).writer().use { out ->
+                viewModel.sensorsList.forEach { item -> out.write("${item.first}, ${item.second}\n")
+                }
+            }
+            pfd.close()
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
     }
 
     private fun applyPreferences() {
